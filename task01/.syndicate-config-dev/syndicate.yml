@@ -1,0 +1,12 @@
+account_id: '905418349556'
+deploy_target_bucket: syndicate-education-platform-custom-sandbox-artifacts-sbox02/7f448310
+expiration: 2024-04-24 15:33:39.715976+00:00
+extended_prefix_mode: true
+iam_permissions_boundary: arn:aws:iam::905418349556:policy/eo_role_boundary
+project_path: C:\epam\task01
+region: eu-central-1
+resources_prefix: cmtr-7f448310-
+temp_aws_access_key_id:
+temp_aws_secret_access_key:
+temp_aws_session_token:
+use_temp_creds: false
