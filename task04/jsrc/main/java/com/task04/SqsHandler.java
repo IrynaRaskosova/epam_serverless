@@ -12,9 +12,11 @@ import com.syndicate.deployment.model.RetentionSetting;
 
 @LambdaHandler(lambdaName = "sqs_handler",
 	roleName = "sqs_handler-role",
-	logsExpiration = RetentionSetting.ONE_DAY
+	//regionScope = RegionScope.ALL,
+	logsExpiration = RetentionSetting.ONE_DAY,
+	timeout = 20
 )
-@SqsTriggerEventSource(targetQueue = "async_queue", batchSize = 2)
+@SqsTriggerEventSource(targetQueue = "async_queue", batchSize = 1)
 public class SqsHandler implements RequestHandler<SQSEvent, Void> {
 
 	@Override
