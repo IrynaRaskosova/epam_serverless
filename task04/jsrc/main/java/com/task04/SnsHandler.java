@@ -6,14 +6,13 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent;
 import com.syndicate.deployment.annotations.events.SnsEventSource;
 import com.syndicate.deployment.annotations.lambda.LambdaHandler;
-import com.syndicate.deployment.model.RegionScope;
 import com.syndicate.deployment.model.RetentionSetting;
 
 @LambdaHandler(lambdaName = "sns_handler",
 	roleName = "sns_handler-role",
 	logsExpiration = RetentionSetting.ONE_DAY
 )
-@SnsEventSource(targetTopic = "lambda_topic", regionScope = RegionScope.US_EAST_1)
+@SnsEventSource(targetTopic = "lambda_topic")
 public class SnsHandler implements RequestHandler<SNSEvent, Void> {
 
 	@Override

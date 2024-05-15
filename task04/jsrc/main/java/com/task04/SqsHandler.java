@@ -12,7 +12,6 @@ import com.syndicate.deployment.model.RetentionSetting;
 
 @LambdaHandler(lambdaName = "sqs_handler",
 	roleName = "sqs_handler-role",
-	//regionScope = RegionScope.ALL,
 	logsExpiration = RetentionSetting.ONE_DAY,
 	timeout = 20
 )
