@@ -3,9 +3,8 @@ package com.task05;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
-import com.amazonaws.services.dynamodbv2.document.ItemUtils;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.syndicate.deployment.annotations.lambda.LambdaHandler;
@@ -22,6 +21,17 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
+/*{
+  "errors": [
+    "The DynamoDB table with cmtr-7f448310-Events-test name misses an expected item or
+    includes an incorrect value in the field: 'event'.
+    Expected: {'id': 'UUID v4', 'principalId': 'int',
+    'createdAt': 'date time in ISO 8601 formatted
+    string(2024-01-01T00:00:00.000Z|2024-01-01T00:00:00.000000)',
+    'body': \"any map '{' content '}'\"}; Actual: None"
+  ]
+}*/
+
 import static com.amazonaws.services.dynamodbv2.document.ItemUtils.toAttributeValue;
 
 @LambdaHandler(lambdaName = "api_handler",
@@ -29,10 +39,9 @@ import static com.amazonaws.services.dynamodbv2.document.ItemUtils.toAttributeVa
 	logsExpiration = RetentionSetting.ONE_DAY
 )
 public class ApiHandler implements RequestHandler<Request, Map<String, Object>> {
-
 	private AmazonDynamoDB amazonDynamoDB;
 	private Regions REGION = Regions.EU_CENTRAL_1;
-	private final String tableName = "cmtr-7f448310-Events";
+	private String tableName = "cmtr-7f448310-Events";
 
 	public Map<String, Object> handleRequest(Request request, Context context) {
 		initDynamoDbClient();
@@ -50,6 +59,7 @@ public class ApiHandler implements RequestHandler<Request, Map<String, Object>> 
 		attributesMap.put("principalId", new AttributeValue().withN(event.getPrincipalId().toString()));
 		attributesMap.put("createdAt", new AttributeValue(event.getCreatedAt()));
 		attributesMap.put("body", new AttributeValue().withM(fromSimpleMap(event.getBody())));
+		defineTableName();
 		amazonDynamoDB.putItem(tableName, attributesMap);
 
 		return event;
@@ -90,5 +100,14 @@ public class ApiHandler implements RequestHandler<Request, Map<String, Object>> 
 		this.amazonDynamoDB = AmazonDynamoDBClientBuilder.standard()
 				.withRegion(REGION)
 				.build();
+	}
+
+	private void defineTableName() {
+		ListTablesResult tables = amazonDynamoDB.listTables();
+		for (String name : tables.getTableNames()) {
+			if(name.startsWith(tableName)) {
+				tableName = name;
+			}
+		}
 	}
 }
