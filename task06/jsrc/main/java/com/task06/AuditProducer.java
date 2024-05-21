@@ -84,12 +84,12 @@ public class AuditProducer implements RequestHandler<DynamodbEvent, Void> {
 		if (!update) {
 			Configuration conf = (Configuration) audit.getNewValue();
 			item.withJSON("newValue", toJson(conf));
-			PutItemSpec itemSpec = new PutItemSpec()
+			/*PutItemSpec itemSpec = new PutItemSpec()
 					.withItem(item)
 					.withValueMap(new ValueMap()
 							.withInt("value", conf.getValue())
-							.withString("key", conf.getKey()));
-			table.putItem(itemSpec);
+							.withString("key", conf.getKey()));*/
+			table.putItem(item);
 		}
 		if (update) {
 				item.withInt("newValue", Integer.valueOf(audit.getNewValue().toString()))
