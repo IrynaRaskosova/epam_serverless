@@ -6,6 +6,8 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.spec.PutItemSpec;
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -70,29 +72,6 @@ public class AuditProducer implements RequestHandler<DynamodbEvent, Void> {
 	}
 
 	private void persistData(Audit audit, boolean update) throws ConditionalCheckFailedException {
-		/*Map<String, AttributeValue> attributesMap = new HashMap<>();
-		attributesMap.put("id", new AttributeValue(audit.getId()));
-		attributesMap.put("itemKey", new AttributeValue(audit.getItemKey()));
-		attributesMap.put("modificationTime", new AttributeValue(audit.getModificationTime()));
-
-		if (!update) {
-			Configuration conf = (Configuration) audit.getNewValue();
-			Map<String, Object> confParams = new HashMap<>();
-			confParams.put("key", conf.getKey());
-			confParams.put("value", conf.getValue());
-			//attributesMap.put("newValue", new AttributeValue(confParams));
-		}
-		if (update) {
-			attributesMap.put("newValue", new AttributeValue().withN(audit.getNewValue().toString()));
-			attributesMap.put("oldValue", new AttributeValue().withN(audit.getOldValue().toString()));
-			attributesMap.put("updatedAttribute", new AttributeValue(audit.getUpdatedAttribute()));
-		}
-		System.out.println("Result map:" + attributesMap);
-		defineTableName();
-		System.out.println("Table name:" + tableName);
-		amazonDynamoDB.putItem(tableName, attributesMap);*/
-//////////////////////////////////////////////////////////
-
 		DynamoDB dynamodb = new DynamoDB(amazonDynamoDB);
 		defineTableName();
 		Table table = dynamodb.getTable(tableName);
@@ -105,14 +84,20 @@ public class AuditProducer implements RequestHandler<DynamodbEvent, Void> {
 		if (!update) {
 			Configuration conf = (Configuration) audit.getNewValue();
 			item.withJSON("newValue", toJson(conf));
+			PutItemSpec itemSpec = new PutItemSpec()
+					.withItem(item)
+					.withValueMap(new ValueMap()
+							.withInt("value", conf.getValue())
+							.withString("key", conf.getKey()));
+			table.putItem(itemSpec);
 		}
 		if (update) {
 				item.withInt("newValue", Integer.valueOf(audit.getNewValue().toString()))
 					.withInt("oldValue", Integer.valueOf(audit.getOldValue().toString()))
 					.withString("updatedAttribute", audit.getUpdatedAttribute());
+				table.putItem(item);
 		}
 
-		table.putItem(item);
 	}
 
 	public String toJson(Configuration configuration) {
@@ -127,23 +112,6 @@ public class AuditProducer implements RequestHandler<DynamodbEvent, Void> {
 		return null;
 	}
 
-	public static AttributeValue fromMap(Map<? extends Object, ? extends Object> m) {
-		var vals = new HashMap<String, AttributeValue>();
-		m.forEach((k, v) ->
-				vals.put(k.toString(), marshal(v))
-		);
-		return new AttributeValue().withM(vals);
-	}
-
-	public static AttributeValue marshal(Object obj) {
-		if (obj instanceof Integer) {
-			return new AttributeValue().withN(obj.toString());
-		} else {
-			return new AttributeValue(obj.toString());
-		}
-	}
-
-
 	private Audit createAuditForInsert(DynamodbEvent.DynamodbStreamRecord record) {
 		Configuration conf = createNewValue(record.getDynamodb().getNewImage());
 		Audit event = new Audit();
@@ -151,6 +119,7 @@ public class AuditProducer implements RequestHandler<DynamodbEvent, Void> {
 		event.setId(UUID.randomUUID().toString());
 		event.setItemKey(conf.getKey());
 		event.setNewValue(conf);
+		event.setNewValue(record.getDynamodb().getNewImage());
 		return event;
 	}
 
