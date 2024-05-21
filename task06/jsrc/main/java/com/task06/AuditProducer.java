@@ -84,11 +84,6 @@ public class AuditProducer implements RequestHandler<DynamodbEvent, Void> {
 		if (!update) {
 			Configuration conf = (Configuration) audit.getNewValue();
 			item.withJSON("newValue", toJson(conf));
-			/*PutItemSpec itemSpec = new PutItemSpec()
-					.withItem(item)
-					.withValueMap(new ValueMap()
-							.withInt("value", conf.getValue())
-							.withString("key", conf.getKey()));*/
 			table.putItem(item);
 		}
 		if (update) {
@@ -119,7 +114,7 @@ public class AuditProducer implements RequestHandler<DynamodbEvent, Void> {
 		event.setId(UUID.randomUUID().toString());
 		event.setItemKey(conf.getKey());
 		event.setNewValue(conf);
-		event.setNewValue(record.getDynamodb().getNewImage());
+		//event.setNewValue(record.getDynamodb().getNewImage());
 		return event;
 	}
 
