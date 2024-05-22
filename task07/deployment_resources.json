@@ -19,7 +19,7 @@
     },
     "resource_type": "iam_policy"
   },
-  "uuid_trigger-role": {
+  "uuid_generator-role": {
     "predefined_policies": ["AmazonS3FullAccess"],
     "principal_service": "lambda",
     "custom_policies": [
@@ -40,7 +40,7 @@
       "restrict_public_buckets": true
     }
   },
-  "cloudwatch-event-rule": {
+  "uuid_trigger": {
     "resource_type": "cloudwatch_rule",
     "rule_type": "schedule",
     "region": "eu-central-1",

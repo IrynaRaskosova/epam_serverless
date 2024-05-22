@@ -22,11 +22,11 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.UUID;
 
-@LambdaHandler(lambdaName = "uuid_trigger",
-	roleName = "uuid_trigger-role",
+@LambdaHandler(lambdaName = "uuid_generator",
+	roleName = "uuid_generator-role",
 	logsExpiration = RetentionSetting.ONE_DAY
 )
-@RuleEventSource(targetRule = "cloudwatch-event-rule")
+@RuleEventSource(targetRule = "uuid_trigger")
 public class UuidTrigger implements RequestHandler<ScheduledEvent, Void> {
 
 	private static final String BUCKET_NAME = "cmtr-7f448310-uuid-storage-test";
