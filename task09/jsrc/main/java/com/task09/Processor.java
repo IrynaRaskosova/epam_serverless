@@ -85,7 +85,7 @@ public class Processor implements RequestHandler<Object, Void> {
 		hourlyUnitsMap.put("temperature_2m", new AttributeValue().withS(weatherData.getHourlyUnits().getTemperature2m()));
 		hourlyUnitsMap.put("time", new AttributeValue().withS(weatherData.getHourlyUnits().getTime()));
 		forecastMap.put("hourly_units", new AttributeValue().withM(hourlyUnitsMap));
-		
+
 		forecastMap.put("latitude", new AttributeValue().withN(String.valueOf(weatherData.getLatitude())));
 		forecastMap.put("longitude", new AttributeValue().withN(String.valueOf(weatherData.getLongitude())));
 		forecastMap.put("timezone", new AttributeValue().withS(weatherData.getTimezone()));
@@ -150,15 +150,17 @@ public class Processor implements RequestHandler<Object, Void> {
 			addAttribute(forecastMap, "timezone_abbreviation", weatherData.getTimezoneAbbreviation());
 
 			if (weatherData.getHourly() != null) {
+				Map<String, AttributeValue> hourlyMap = new HashMap<>();
 				List<AttributeValue> temperature2mValues = weatherData.getHourly().getTemperature2m().stream()
 						.map(temp -> new AttributeValue().withN(String.valueOf(temp)))
 						.collect(Collectors.toList());
-				forecastMap.put("temperature_2m", new AttributeValue().withL(temperature2mValues));
+				hourlyMap.put("temperature_2m", new AttributeValue().withL(temperature2mValues));
 
 				List<AttributeValue> timeValues = weatherData.getHourly().getTime().stream()
 						.map(time -> new AttributeValue().withS(time))
 						.collect(Collectors.toList());
-				forecastMap.put("time", new AttributeValue().withL(timeValues));
+				hourlyMap.put("time", new AttributeValue().withL(timeValues));
+				forecastMap.put("hourly", new AttributeValue().withM(hourlyMap));
 			}
 
 			if (weatherData.getHourlyUnits() != null) {
