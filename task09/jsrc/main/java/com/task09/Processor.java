@@ -72,23 +72,20 @@ public class Processor implements RequestHandler<Object, Void> {
 		attributesMap.put("id", new AttributeValue().withS(UUID.randomUUID().toString()));
 
 		Map<String, AttributeValue> forecastMap = new HashMap<>();
-		double eleviation = weatherData.getElevation();
-		String str = String.valueOf(eleviation);
-		AttributeValue attributeValue = new AttributeValue().withN(str);
+		AttributeValue attributeValue = new AttributeValue().withN(String.valueOf(weatherData.getElevation()));
 		forecastMap.put("elevation", attributeValue);
 		forecastMap.put("generationtime_ms", new AttributeValue().withN(String.valueOf(weatherData.getGenerationtimeMs())));
 
 		Map<String, AttributeValue> hourlyMap = new HashMap<>();
 		hourlyMap.put("temperature_2m", new AttributeValue().withNS(convertDoubleListToStringList(weatherData.getHourly().getTemperature2m())));
 		hourlyMap.put("time", new AttributeValue().withSS(weatherData.getHourly().getTime()));
-
 		forecastMap.put("hourly", new AttributeValue().withM(hourlyMap));
 
 		Map<String, AttributeValue> hourlyUnitsMap = new HashMap<>();
 		hourlyUnitsMap.put("temperature_2m", new AttributeValue().withS(weatherData.getHourlyUnits().getTemperature2m()));
 		hourlyUnitsMap.put("time", new AttributeValue().withS(weatherData.getHourlyUnits().getTime()));
-
 		forecastMap.put("hourly_units", new AttributeValue().withM(hourlyUnitsMap));
+		
 		forecastMap.put("latitude", new AttributeValue().withN(String.valueOf(weatherData.getLatitude())));
 		forecastMap.put("longitude", new AttributeValue().withN(String.valueOf(weatherData.getLongitude())));
 		forecastMap.put("timezone", new AttributeValue().withS(weatherData.getTimezone()));
@@ -96,7 +93,7 @@ public class Processor implements RequestHandler<Object, Void> {
 		forecastMap.put("utc_offset_seconds", new AttributeValue().withN(String.valueOf(weatherData.getUtcOffsetSeconds())));
 
 		attributesMap.put("forecast", new AttributeValue().withM(forecastMap));
-
+		System.out.println(attributesMap);
 		return attributesMap;
 	}
 
